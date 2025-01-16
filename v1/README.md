@@ -4,69 +4,13 @@ Vous pouvez utiliser Docker Compose pour exécuter facilement WordPress dans un 
 construit avec des conteneurs Docker. Ce guide de démarrage rapide montre comment utiliser
 Compose pour configurer et exécuter WordPress. Avant de commencer, assurez-vous d'avoir
 [Compose installé](https://docs.docker.com/compose/install/).
+## Quelques commande necessaire
+`sudo apt-get update/
+sudo apt install docker docker-compose -y/
+sudo usermod -aG docker $USER/
+docker ps/`
 
-## Définir le projet
-
-1. Créez un répertoire de projet vide.
-
-    Vous pouvez donner au répertoire un nom facile à retenir `v1`.
-    Ce répertoire est le contexte de l'image de votre application.
-    le répertoire ne doit contenir que des ressources pour créer cette image.
-
-    Ce répertoire de projet contient un fichier `docker-compose.yml` qui
-    est complet en soi pour un bon projet WordPress de démarrage.
-
-    >**Astuce** : j'ai utilisè une extension `.yml` pour
-    ce fichier. Mais on peut aussi utiliser `.yaml` Ils fonctionnent tous les deux.
-
-2. Accédez au répertoire de votre projet.
-
-    Par exemple, si vous avez nommé votre répertoire « my_wordpress » :
-
-    ```console
-    $ cd v1/
-    ```
-
-3. Créez un fichier `docker-compose.yml` qui démarre votre
-    Blog « WordPress » et une instance « MySQL » distincte avec volume
-    supports pour la persistance des données :
-
-    ```yaml
-    services:
-      db:
-        # Nous utilisons une image mariadb qui prend en charge les architectures amd64 et arm64
-        image: mariadb:10.6.4-focal
-        # Si vous voulez vraiment utiliser MySQL, décommentez la ligne suivante
-        #image: mysql:8.0.27
-        commande : '--default-authentication-plugin=mysql_native_password'
-        tomes:
-          - db_data:/var/lib/mysql
-        redémarrer : toujours
-        environnement:
-          - MYSQL_ROOT_PASSWORD=unwordpress
-          - BASE_DE_DONNÉES_MYSQL=wordpress
-          - MYSQL_USER=wordpress
-          -MOT DE PASSE MYSQL=wordpress
-        exposer:
-          - 3306
-          - 33060
-      WordPress:
-        image: wordpress:dernier
-        tomes:
-          - wp_data:/var/www/html
-        ports:
-          - 80:80
-        redémarrer : toujours
-        environnement:
-          - WORDPRESS_DB_HOST=base de données
-          - WORDPRESS_DB_USER=wordpress
-          - WORDPRESS_DB_PASSWORD=wordpress
-          - WORDPRESS_DB_NAME=wordpress
-    tomes:
-      db_data:
-      wp_données:
-    ```
-
+`docker ps` **montre uniquement les conteneurs en cours d’exécution pour savoir ce qui tourne sur ton système Docker.**
    > **Remarques**:
    >
    * Les volumes docker `db_data` et `wordpress_data` conservent les mises à jour effectuées par WordPress
@@ -129,10 +73,4 @@ navigateur.
 
 ![WordPress Bienvenue](doc/2.png)
 
-### Arrêt et nettoyage
 
-La commande [`docker compose down`](https://docs.docker.com/engine/reference/commandline/compose_down/) supprime le
-conteneurs et réseau par défaut, mais préserve votre base de données WordPress.
-
-La commande `docker compose down --volumes` supprime les conteneurs par défaut
-réseau et la base de données WordPress.
