@@ -1,76 +1,127 @@
-# Démarrage rapide : Compose et WordPress
+# WordPress Installation Guide
 
-Vous pouvez utiliser Docker Compose pour exécuter facilement WordPress dans un environnement isolé
-construit avec des conteneurs Docker. Ce guide de démarrage rapide montre comment utiliser
-Compose pour configurer et exécuter WordPress. Avant de commencer, assurez-vous d'avoir
-[Compose installé](https://docs.docker.com/compose/install/).
-## Quelques commande necessaire
-`sudo apt-get update/
-sudo apt install docker docker-compose -y/
-sudo usermod -aG docker $USER/
-docker ps/`
+WordPress is a free, open-source content management system (CMS) written in PHP and based on MySQL or MariaDB databases. Distributed by the WordPress.org foundation, WordPress allows users to create and manage various types of websites, including blogs, portfolios, online stores, institutional sites, and more.
 
-`docker ps` **montre uniquement les conteneurs en cours d’exécution pour savoir ce qui tourne sur ton système Docker.**
-   > **Remarques**:
-   >
-   * Les volumes docker `db_data` et `wordpress_data` conservent les mises à jour effectuées par WordPress
-   à la base de données, ainsi qu'aux thèmes et plugins installés. [En savoir plus sur les volumes Docker](https://docs.docker.com/storage/volumes/)
-   >
-   * WordPress Multisite fonctionne uniquement sur les ports « 80 » et « 443 ».
-   {: .note-vanilla}
+As of February 1, 2023:
 
-### Construire le projet
+- WordPress was used by 43.2% of websites worldwide.
+- Its closest competitors were Shopify (3.8%) and Wix (2.5%), while open-source competitors included Joomla! (1.8%) and Drupal (1.2%).
+- 32% of websites did not use a CMS.
 
-Maintenant, exécutez « docker compose up -d » depuis votre répertoire de projet.
+This guide outlines how to properly install WordPress using Docker and Docker Compose.
 
-Cela exécute [`docker compose up`](https://docs.docker.com/engine/reference/commandline/compose_up/) en mode détaché, extrait
-les images Docker nécessaires et démarre les conteneurs WordPress et de base de données, comme indiqué dans
-l'exemple ci-dessous.
+## Objectives
 
-```console
-$ docker compose up -d
+- Basic Docker Compose setup with MariaDB and Apache.
+- Backup and restore functionality (e.g., create a post and test restoration).
+- Change default passwords and manage credentials outside the `docker-compose.yml` file.
+- Separate DMZ and isolated networks for database security.
+- Add monitoring within the isolated network (URL checks, service checks, disk space monitoring).
+- Add web containers with DNS round-robin.
+- Implement a load balancer with sticky sessions.
+- Create certificates and enable HTTPS.
 
-Création du réseau « my_wordpress_default » avec le pilote par défaut
-Extraction de la base de données (mysql:5.7)...
-5.7 : Extraction depuis la bibliothèque/mysql
-efd26ecc9548 : Extraction terminée
-a3ed95caeb02 : Extraction terminée
-<...>
-Résumé : sha256:34a0aca88e85f2efa5edff1cea77cf5d3147ad93545dbec99cfe705b03c520de
-Statut : Image plus récente téléchargée pour mysql : 5.7
-Extraction de WordPress (wordpress:latest)...
-dernier: Extraction de la bibliothèque/WordPress
-efd26ecc9548 : existe déjà
-a3ed95caeb02 : Extraction terminée
-589a9d9a7c64 : Extraction terminée
-<...>
-Résumé : sha256:ed28506ae44d5def89075fd5c01456610cd6c64006addfe5210b8c675881aff6
-Statut : Téléchargement d'une image plus récente pour WordPress : latest
-Création de ma_base_wordpress_1
-Création de mon_wordpress_wordpress_1
+## Getting Started
+
+### Target Architecture
+
+![archi v1](doc/v1-archi.png "Archi v1")
+
+### Prerequisites
+
+You need Docker and Docker Compose installed:
+
+```bash
+sudo apt-get update
+sudo apt install docker docker-compose -y
+sudo usermod -aG docker $USER
+docker ps
+docker run hello-world
+docker-compose version
 ```
 
-> **Remarque** : WordPress Multisite fonctionne uniquement sur les ports « 80 » et/ou « 443 ».
-Si vous recevez un message d'erreur concernant la liaison de « 0.0.0.0 » au port « 80 » ou « 443 »
-(selon celui que vous avez spécifié), il est probable que le port que vous
-configuré pour WordPress est déjà utilisé par un autre service.
-
-### Lancez WordPress dans un navigateur Web
-
-À ce stade, WordPress devrait fonctionner sur le port « 80 » de votre hôte Docker,
-et vous pouvez terminer la « célèbre installation en cinq minutes » en tant que WordPress
-administrateur.
-
-> **Remarque** : le site WordPress n'est pas immédiatement disponible sur le port « 80 »
-car les conteneurs sont encore en cours d'initialisation et peuvent prendre quelques
-minutes avant le premier chargement.
-
-Si vous utilisez Docker Desktop pour Mac ou Docker Desktop pour Windows, vous pouvez utiliser
-`http://localhost` comme adresse IP et ouvrez `http://localhost:80` dans un navigateur Web
-navigateur.
-
-![Choisissez la langue pour l'installation de WordPress](doc/1.png)
-
-![WordPress Bienvenue](doc/2.png)
+> **Note:**
+>
+> Check the [official Docker documentation](https://docs.docker.com/engine/install/ubuntu/) for the most up-to-date installation steps for your system.
 
 
+
+### Installation
+
+The `docker-compose.yml` file specifies the containers, network configuration, environment variables, and persistent storage. Adapt the configuration to your needs.
+
+> **Notes:**
+>
+> - Docker volumes `db_data` and `wordpress_data` retain database updates, themes, and plugins installed through WordPress. [Learn more about Docker volumes](https://docs.docker.com/storage/volumes/).
+> - WordPress Multisite works only on ports 80 and 443.
+
+Place yourself in the directory containing the `docker-compose.yml` file.
+
+> **Caution:**
+> Modify the following environment variables before running Docker Compose:
+
+| Variable                | Default Value |
+| ----------------------- | ------------- |
+| MYSQL\_ROOT\_PASSWORD   | somewordpress |
+| MYSQL\_DATABASE         | wordpress     |
+| MYSQL\_USER             | wordpress     |
+| MYSQL\_PASSWORD         | wordpress     |
+| WORDPRESS\_DB\_HOST     | db            |
+| WORDPRESS\_DB\_USER     | wordpress     |
+| WORDPRESS\_DB\_PASSWORD | wordpress     |
+| WORDPRESS\_DB\_NAME     | wordpress     |
+
+Run the following command to start the containers:
+
+```bash
+docker compose up -d
+```
+
+This runs [`docker compose up`](https://docs.docker.com/engine/reference/commandline/compose_up/) in detached mode, pulls the required Docker images, and starts the WordPress and database containers, as shown below:
+
+```bash
+Creating network "my_wordpress_default" with the default driver
+Pulling database (mysql:5.7)...
+5.7: Pulling from library/mysql
+efd26ecc9548: Pull complete
+a3ed95caeb02: Pull complete
+...
+Digest: sha256:34a0aca88e85f2efa5edff1cea77cf5d3147ad93545dbec99cfe705b03c520de
+Status: Downloaded newer image for mysql:5.7
+Pulling wordpress (wordpress:latest)...
+latest: Pulling from library/wordpress
+efd26ecc9548: Already exists
+a3ed95caeb02: Pull complete
+589a9d9a7c64: Pull complete
+...
+Digest: sha256:ed28506ae44d5def89075fd5c01456610cd6c64006addfe5210b8c675881aff6
+Status: Downloaded newer image for wordpress:latest
+Creating my_wordpress_database_1 ... done
+Creating my_wordpress_wordpress_1 ... done
+```
+
+> **Note:**
+> If WordPress Multisite is enabled, it only works on ports 80 and/or 443. If you encounter a port binding error, ensure that no other service is using these ports.
+
+
+
+### Accessing WordPress in a Web Browser
+
+At this stage, WordPress should be running on port 80 of your Docker host. Open `http://localhost:80` in a web browser to complete the famous "five-minute installation" as a WordPress administrator.
+
+> **Note:**
+> The WordPress site may take a few minutes to become available on port 80 as the containers initialize.
+
+If you are using Docker Desktop for Mac or Windows, you can also access the site via `http://localhost`.
+
+![Wordpress setup page1](doc/1.png "Wordpress setup page1")
+
+![Wordpress setup page2](doc/2.png "Wordpress setup page2")
+
+## Usage
+
+Your blog should now be online with its first page!
+
+## Sources
+
+- [Docker Engine Installation Guide](https://docs.docker.com/engine/install/ubuntu/)
