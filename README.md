@@ -19,7 +19,7 @@ This repository provides step-by-step guidance on setting up a WordPress environ
    cd <your-repo>
    ```
 
-2. Navigate to the desired version in the [documentation](https://<your-username>.github.io/<your-repo>/) and follow the instructions.
+2. Navigate to the desired version in the [documentation](docs/index.md) and follow the instructions.
 
 3. Start your Docker setup:
    ```bash
@@ -28,7 +28,7 @@ This repository provides step-by-step guidance on setting up a WordPress environ
 
 ## Documentation
 
-Detailed step-by-step instructions for each version are available in the [documentation](https://<your-username>.github.io/<your-repo>/).
+Detailed step-by-step instructions for each version are available in the [documentation](docs/index.md).
 
 ### Quick Links
 - [v1.0.0: Basic Docker Compose Setup](docs/v1.0.0-basic-docker-compose.md)
